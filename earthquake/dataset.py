@@ -16,8 +16,8 @@ districts = [
     "Mayiladuthurai", "Thiruporur", "Thirumangalam"
 ]
 
-start_date = datetime(2025, 1, 1)
-end_date = datetime(2025, 12, 31)
+start_date = datetime(2024, 1, 1)
+end_date = datetime(2024, 12, 31)
 
 dates = []
 current_date = start_date
@@ -45,3 +45,4 @@ for district in districts:
 df = pd.DataFrame(rows)
 df.to_csv("earthquake_data.csv", index=False)
 print(f" earthquake_data.csv created with {len(df)} rows")
+
