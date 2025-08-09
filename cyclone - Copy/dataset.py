@@ -15,8 +15,8 @@ districts = [
 ]
 
 # Generate data every 3 days for 1 year
-start_date = datetime(2025, 1, 1)
-end_date = datetime(2025, 12, 31)
+start_date = datetime(2024, 1, 1)
+end_date = datetime(2024, 12, 31)
 date_list = []
 
 current_date = start_date
