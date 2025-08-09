@@ -1,53 +1,59 @@
 import pandas as pd
-import joblib
 from datetime import datetime
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+import joblib
 
-
-# Load the model and data
-model = joblib.load("cyclone_model.pkl")
+# Load data
 df = pd.read_csv("cyclone_data.csv")
 df['date'] = pd.to_datetime(df['date'])
 
-# Function 1: Predict for a specific date
-def predict_by_date(input_date):
+# Extract date features
+df['year'] = df['date'].dt.year
+df['month'] = df['date'].dt.month
+df['day'] = df['date'].dt.day
+df['day_of_year'] = df['date'].dt.dayofyear
+
+# Encode city/district
+le_city = LabelEncoder()
+df['district_encoded'] = le_city.fit_transform(df['district'])
+
+# Features: date parts + city
+X = df[['year', 'month', 'day', 'day_of_year', 'district_encoded']]
+y = df['cyclone']
+
+# Train model
+model = RandomForestClassifier(random_state=42)
+model.fit(X, y)
+
+# Save model & label encoder
+joblib.dump(model, "cyclone_model.pkl")
+joblib.dump(le_city, "city_encoder.pkl")
+
+def will_cyclone_on(date_str, district):
+    """Predict cyclone just from date & city."""
+    date_obj = pd.to_datetime(date_str)
+    year = date_obj.year
+    month = date_obj.month
+    day = date_obj.day
+    day_of_year = date_obj.timetuple().tm_yday
+
+    # Encode city
     try:
-        date_obj = datetime.strptime(input_date, '%Y-%m-%d')
-        row = df[df['date'] == date_obj]
-
-        if row.empty:
-            return f"No weather data available for {input_date}."
-
-        features = row[['wind_speed', 'pressure', 'humidity']]
-        prediction = model.predict(features)[0]
-
-        return f" Cyclone likely on {input_date}." if prediction == 1 else f" No cyclone on {input_date}."
-
+        city_encoded = le_city.transform([district])[0]
     except ValueError:
-        return " Invalid date format. Use YYYY-MM-DD."
+        return None  # Unknown city
 
-# Function 2: Predict all upcoming cyclone dates
-def get_all_cyclone_days():
-    features = df[['wind_speed', 'pressure', 'humidity']]
-    predictions = model.predict(features)
+    features = [[year, month, day, day_of_year, city_encoded]]
+    prediction = model.predict(features)[0]
+    return bool(prediction)
 
-    cyclone_dates = df['date'][predictions == 1]
-    if cyclone_dates.empty:
-        return " No cyclone days in current dataset."
-    else:
-        return " Cyclone likely on these dates:\n" + '\n'.join(cyclone_dates.dt.strftime('%Y-%m-%d').tolist())
-
-# ========== USER MENU ==========
-print("\n--- Cyclone Prediction System ---")
-print("1. Predict for a specific date")
-print("2. Show all likely cyclone dates")
-choice = input("Choose option (1 or 2): ")
-
-if choice == "1":
-    date_input = input("Enter date (YYYY-MM-DD): ")
-    print(predict_by_date(date_input))
-elif choice == "2":
-    print(get_all_cyclone_days())
-else:
-    print(" Invalid choice. Please choose 1 or 2.")
-   
-
+def next_cyclone(city):
+    """Find next cyclone date after today for given city."""
+    today = datetime.now().date()
+    for i in range(1, 366):  # check up to a year ahead
+        future_date = today + pd.Timedelta(days=i)
+        if will_cyclone_on(future_date.strftime("%Y-%m-%d"), city):
+            return future_date.strftime("%Y-%m-%d")
+    return None
