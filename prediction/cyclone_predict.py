@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 import joblib
 
 # Load data
-df = pd.read_csv("cyclone_data.csv")
+df = pd.read_csv("csv/cyclone_data.csv")
 df['date'] = pd.to_datetime(df['date'])
 
 # Extract date features

@@ -1,4 +1,7 @@
 venv/
+__pycache__
+earthquake_model.pkl
+cyclone_model.pkl
 earthquake/__pycache__
 cyclone - Copy/__pycache__/
 cyclone - Copy/city_encoder.pkl

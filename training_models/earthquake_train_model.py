@@ -5,7 +5,7 @@ from sklearn.preprocessing import LabelEncoder
 import joblib
 
 # Load earthquake data
-df = pd.read_csv("earthquake_data.csv")
+df = pd.read_csv("csv/earthquake_data.csv")
 df['date'] = pd.to_datetime(df['date'])
 
 # Extract date features

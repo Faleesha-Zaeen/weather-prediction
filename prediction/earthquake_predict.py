@@ -7,11 +7,11 @@ import joblib
 base_dir = os.path.dirname(__file__)
 
 # Load saved model and label encoder using relative paths
-model = joblib.load(os.path.join(base_dir, "earthquake_model.pkl"))
-le_city = joblib.load(os.path.join(base_dir, "city_encoder.pkl"))
+model = joblib.load(os.path.join("models/earthquake_model.pkl"))
+le_city = joblib.load(os.path.join("city_encoder.pkl"))
 
 # Load full data for reference and features
-df = pd.read_csv(os.path.join(base_dir, "earthquake_data.csv"))
+df = pd.read_csv(os.path.join("csv/earthquake_data.csv"))
 df['date'] = pd.to_datetime(df['date'])
 
 # Extract date features in dataframe for reference
